@@ -1,0 +1,155 @@
+@font-face {
+  font-family: RobotoMono;
+  src: url(fonts/RobotoMono-VariableFont_wght.ttf);
+}
+
+html {
+  font-family: var(--lumo-font-family);
+  --lumo-font-family: RobotoMono;
+  --lumo-border-radius-s: 0px;
+  --lumo-border-radius-m: var(--lumo-border-radius, 0px);
+  --lumo-border-radius-l: 0px;
+  --lumo-border-radius: 0px;
+  /* Top bar: offset from the top + bar height */
+  --app-header-offset: 10px;
+  --app-header-bar: 96px;
+  --app-header-height: calc(var(--app-header-offset) + var(--app-header-bar));
+
+}
+
+body {
+  height: 100vh;
+  margin: 0;
+  background-color: #232323;
+  background-image: url(../images/camo.svg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+main {
+  height: 100%;
+}
+
+html[theme~='dark'] {
+  /* Dark grey panels over the camouflage background */
+  --lumo-base-color: hsl(0, 0%, 11%);
+  --lumo-tint-5pct: hsla(0, 0%, 92%, 0.05);
+
+  /* One hue drives the accent colour: neon burgundy by default, blue after
+     choosing NATO, red after choosing PAKT (see html[data-side] below). */
+  --acc-h: 345;
+  --acc-burgundy: hsl(var(--acc-h), 85%, 39%);
+  /* Lighter burgundy for thin shapes (weapon icons) on the dark background */
+  --acc-burgundy-light: hsl(var(--acc-h), 82%, 46%);
+  --acc-burgundy-glow: hsla(var(--acc-h), 100%, 45%, 0.6);
+  --lumo-primary-color: var(--acc-burgundy);
+  --lumo-primary-text-color: hsl(var(--acc-h), 95%, 62%);
+  --lumo-primary-contrast-color: #fff;
+  --lumo-primary-color-50pct: hsla(var(--acc-h), 92%, 45%, 0.6);
+  --lumo-primary-color-10pct: hsla(var(--acc-h), 92%, 45%, 0.16);
+
+  /* Sand, like the tank in the logo */
+  --lumo-secondary-color: hsl(42, 55%, 66%);
+  --lumo-secondary-color-50pct: hsla(42, 55%, 66%, 0.6);
+  --lumo-secondary-color-10pct: hsla(42, 55%, 66%, 0.13);
+  --lumo-clickable-cursor: pointer;
+
+  
+  --warno-exceptional: rgb(117, 255, 255);
+  --warno-exceptional-40pct: rgba(117, 255, 255, 0.4);
+  --warno-exceptional-20pct: rgba(117, 255, 255, 0.2);
+  
+  --warno-good: rgb(127, 255, 117);
+  --warno-good-40pct: rgba(127, 255, 117, 0.4);
+  --warno-good-20pct: rgba(127, 255, 117, 0.2);
+  
+  --warno-average: rgb(233, 255, 117);
+  --warno-average-40pct: rgba(233, 255, 117, 0.4);
+  --warno-average-20pct: rgba(233, 255, 117, 0.2);
+  
+  --warno-bad: rgb(255, 168, 69);
+  --warno-bad-40pct: rgba(255, 168, 69, 0.4);
+  --warno-bad-20pct: rgba(255, 168, 69, 0.2);
+  
+  --warno-very-bad: #ff5454;
+  --warno-very-bad-40pct: rgba(255, 84, 84, 0.4);
+  --warno-very-bad-20pct: rgba(255, 84, 84, 0.2);
+  
+}
+
+/* Side theme: blue for NATO, red for PAKT */
+html[theme~='dark'][data-side='nato'] {
+  --acc-h: 214;
+}
+
+html[theme~='dark'][data-side='pact'] {
+  --acc-h: 2;
+}
+
+vaadin-dialog-overlay::part(header) {
+  padding: 0;
+}
+
+vaadin-dialog-overlay::part(title) {
+  padding: var(--lumo-space-m);
+}
+
+vaadin-dialog-overlay::part(header-content) {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 100%;
+}
+
+vaadin-dialog-overlay::part(overlay) {
+  width: 100vw;
+  max-width: 600px;
+}
+
+vaadin-dialog-overlay::part(content) {
+  max-width: 600px;
+}
+
+div[slot='header-content'] {
+  background-color: red !important;
+}
+
+.unit-search-result {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--lumo-font-size-xs);
+
+}
+
+vaadin-combo-box-item {
+  border-bottom: 1px dotted var(--lumo-contrast-30pct);
+}
+
+.unit-search-result > .unit-information {
+  display: flex;
+  align-items: center;
+  margin-top: var(--lumo-space-s);
+}
+
+.unit-search-result > .unit-image-wrapper {
+  margin-right: var(--lumo-space-s);
+}
+
+.unit-search-result unit-image {
+  width: 80px;
+}
+
+.unit-search-result .unit-name {
+  font-size: var(--lumo-font-size-xs)
+}
+
+.unit-graphics {
+  display: flex;
+}
+
+.unit-search-result country-flag {
+  margin-right: var(--lumo-space-s);
+  width: 60px;
+}
+

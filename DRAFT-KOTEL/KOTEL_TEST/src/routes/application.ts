@@ -1,0 +1,76 @@
+import {css, html, LitElement, TemplateResult} from 'lit';
+import {customElement} from 'lit/decorators.js';
+import '../components/notification-manager';
+// @ts-ignore
+import AccLogoTop from '../../images/acc-logo-top.webp';
+
+/**
+ * Root layout: a slim top bar and the routed page below it.
+ */
+@customElement('application-route')
+export class Application extends LitElement {
+  static get styles() {
+    return css`
+      :host {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      header {
+        height: var(--app-header-bar);
+        flex: 0 0 var(--app-header-bar);
+        margin-top: var(--app-header-offset);
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        padding: 0 var(--lumo-space-m);
+        background: linear-gradient(
+          to bottom,
+          hsla(var(--acc-h, 345), 25%, 8%, 0.92),
+          hsla(var(--acc-h, 345), 20%, 12%, 0.88)
+        );
+        border-bottom: 2px solid var(--acc-burgundy);
+      }
+
+      header a {
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+
+      header img {
+        height: 86px;
+        width: auto;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+      }
+
+      main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+    `;
+  }
+
+  render(): TemplateResult {
+    return html`
+      <notification-manager></notification-manager>
+      <header>
+        <a href="/" title="Strona główna">
+          <img src=${AccLogoTop} alt="ACC.DRAFTER" />
+        </a>
+      </header>
+      <main>
+        <slot></slot>
+      </main>
+    `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'application-route': Application;
+  }
+}
