@@ -52,6 +52,8 @@ export interface LobbySnapshot {
   now: number;
   members: LobbyMember[];
   draft: DraftView | null;
+  /** pid -> deck code of the player's teammates; filled once the draft is over */
+  decks?: Record<string, string>;
 }
 
 export const NICK_PATTERN = /^[\p{L}\p{N} _.\-]{2,20}$/u;

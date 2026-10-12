@@ -25,9 +25,10 @@ import {
 } from '../../services/lobby';
 import {notificationService} from '../../services/notification';
 import {allowedDivisionDescriptors} from '../../utils/owned-dlc';
-import {getDeckCode} from '../../utils/export-deck-to-code';
+import {copyText, getDeckCode} from '../../utils/export-deck-to-code';
 import {applySideTheme} from '../../utils/theme';
 import {Unit, UnitMap} from '../../types/unit';
+import {Deck} from '../../classes/deck';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -134,6 +135,50 @@ export class LobbyDraft extends DeckDraftRoute {
           color: var(--lumo-secondary-text-color);
         }
 
+        .mates {
+          box-sizing: border-box;
+          width: 100%;
+          margin: 0 var(--lumo-space-m) var(--lumo-space-m);
+          padding: var(--lumo-space-l);
+          background-color: hsla(0, 0%, 11%, 0.92);
+          border: 1px solid var(--lumo-contrast-20pct);
+          border-top: 3px solid var(--lumo-primary-color);
+        }
+
+        .mates h3 {
+          margin: 0 0 var(--lumo-space-s);
+          letter-spacing: 0.12em;
+          color: var(--lumo-secondary-color);
+        }
+
+        .mate-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--lumo-space-s);
+          margin-bottom: var(--lumo-space-m);
+        }
+
+        .mate-tabs button {
+          padding: var(--lumo-space-xs) var(--lumo-space-m);
+          font: inherit;
+          font-weight: 700;
+          color: var(--lumo-body-text-color);
+          background-color: var(--lumo-contrast-5pct);
+          border: 1px solid var(--lumo-contrast-30pct);
+          cursor: pointer;
+        }
+
+        .mate-tabs button.active {
+          background-color: var(--lumo-primary-color-50pct);
+          border-color: var(--lumo-primary-color);
+        }
+
+        .mate-tabs button.waiting {
+          opacity: 0.5;
+          font-style: italic;
+          cursor: default;
+        }
+
         .private-note {
           margin-top: var(--lumo-space-s);
           font-size: var(--lumo-font-size-s);
@@ -160,6 +205,13 @@ export class LobbyDraft extends DeckDraftRoute {
   private syncing = false;
   private again = false;
   private ready = false;
+  /** Deck code last sent to the server (so it is sent once per deck) */
+  private sharedCode = '';
+  private mateDecks = new Map<string, Deck | null>();
+
+  /** Teammate whose deck is open at the end of the draft */
+  @state()
+  private selectedMate = '';
 
   private onLobbyChange = () => {
     this.requestUpdate();
@@ -303,14 +355,36 @@ export class LobbyDraft extends DeckDraftRoute {
       this.appliedRound = entry.round;
       localStorage.setItem(this.appliedKey, String(this.appliedRound));
       const full = (this.state as UnitPickState).data.choices.length === 0;
+      if (full) {
+        await this.shareDeck();
+      }
       await lobby.act('ack', {round: this.appliedRound, done: full});
     }
 
     // A deck that is full at the start of the rounds still has to say so
     const after = lobby.snapshot?.draft;
     const full = (this.state as UnitPickState).data.choices.length === 0;
-    if (after && full && !after.done.includes(lobby.pid)) {
-      await lobby.act('ack', {round: this.appliedRound, done: true});
+    if (after && full) {
+      // Also after a reload: the server may have lost nothing, but a repeat is harmless
+      await this.shareDeck();
+      if (!after.done.includes(lobby.pid)) {
+        await lobby.act('ack', {round: this.appliedRound, done: true});
+      }
+    }
+  }
+
+  /**
+   * Sends the finished deck code to the server. The server keeps it hidden
+   * until every deck is full, then shows it to the owner's team only.
+   */
+  private async shareDeck() {
+    const code = getDeckCode(this.activeDeck);
+    if (!code || code === this.sharedCode) {
+      return;
+    }
+    const error = await lobby.act('share', {code});
+    if (!error) {
+      this.sharedCode = code;
     }
   }
 
@@ -445,6 +519,99 @@ export class LobbyDraft extends DeckDraftRoute {
     `;
   }
 
+  /** Deck of a teammate from its code (cached; null when it cannot be read) */
+  private mateDeck(code: string): Deck | null {
+    if (!this.unitMap || !this.divisions) {
+      return null;
+    }
+    const cached = this.mateDecks.get(code);
+    if (cached !== undefined) {
+      return cached;
+    }
+    let deck: Deck | null = null;
+    try {
+      deck = Deck.fromDeckCode(code, {
+        unitMap: this.unitMap,
+        divisions: this.divisions,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    this.mateDecks.set(code, deck);
+    return deck;
+  }
+
+  /** After the whole draft: the decks of this player's teammates */
+  private renderMates(snapshot: LobbySnapshot): TemplateResult {
+    if (snapshot.phase !== 'finished') {
+      return html``;
+    }
+    const mates = snapshot.members.filter(
+      (m) => m.team === lobby.me?.team && m.pid !== lobby.pid
+    );
+    if (mates.length === 0) {
+      return html``;
+    }
+    const decks = snapshot.decks ?? {};
+    const selected =
+      mates.find((m) => m.pid === this.selectedMate) ??
+      mates.find((m) => decks[m.pid]) ??
+      mates[0];
+    const code = decks[selected.pid];
+    const deck = code ? this.mateDeck(code) : null;
+    return html`
+      <div class="content complete">
+        <div class="mates">
+          <h3>DECKI DRUŻYNY</h3>
+          <div class="mate-tabs">
+            ${mates.map(
+              (m) => html`<button
+                class="${m.pid === selected.pid ? 'active' : ''} ${decks[m.pid]
+                  ? ''
+                  : 'waiting'}"
+                @click=${() => (this.selectedMate = m.pid)}
+              >
+                ${m.nick}
+              </button>`
+            )}
+          </div>
+          ${deck
+            ? html`
+                <deck-header .deck=${deck}>
+                  <div class="deck-title" slot="title">
+                    <deck-title .deck=${deck} .name=${deck.division?.name}>
+                    </deck-title>
+                    <div class="button-bar">
+                      <vaadin-button
+                        theme="primary large"
+                        @click=${() => this.copyMateCode(code)}
+                      >
+                        Kopiuj kod
+                      </vaadin-button>
+                    </div>
+                  </div>
+                </deck-header>
+                <summary-view .deck=${deck}></summary-view>
+              `
+            : html`<p class="loading">
+                ${code
+                  ? 'Nie udało się wczytać tego decku.'
+                  : `${selected.nick} nie przesłał jeszcze decku (może być offline).`}
+              </p>`}
+        </div>
+      </div>
+    `;
+  }
+
+  private async copyMateCode(code: string) {
+    const copied = await copyText(code);
+    notificationService.instance?.addNotification({
+      content: copied ? 'Skopiowano kod decku' : `Kod decku: ${code}`,
+      duration: copied ? 3000 : 8000,
+      theme: copied ? '' : 'error',
+    });
+  }
+
   private renderComplete(): TemplateResult {
     return html`
       <div class="content complete">
@@ -509,7 +676,7 @@ export class LobbyDraft extends DeckDraftRoute {
 
     if (this.state.phase === 'UNIT_PICK') {
       if (this.state.data.choices.length === 0) {
-        return html`${bar}${this.renderComplete()}`;
+        return html`${bar}${this.renderComplete()}${this.renderMates(snapshot)}`;
       }
       const mine = this.myTurn(draft);
       return html`

@@ -37,7 +37,7 @@ export class LobbyRoute extends LitElement implements BeforeEnterObserver {
       .page {
         box-sizing: border-box;
         width: 100%;
-        max-width: 760px;
+        max-width: 47.5rem;
         margin: 0 auto;
         padding: var(--lumo-space-l) var(--lumo-space-m);
       }
@@ -58,7 +58,7 @@ export class LobbyRoute extends LitElement implements BeforeEnterObserver {
 
       .logo {
         display: block;
-        width: min(260px, 70%);
+        width: min(16.25rem, 70%);
         margin: 0 auto var(--lumo-space-m);
       }
 
@@ -260,8 +260,8 @@ export class LobbyRoute extends LitElement implements BeforeEnterObserver {
       }
 
       .dlc input {
-        width: 18px;
-        height: 18px;
+        width: 1.125rem;
+        height: 1.125rem;
         accent-color: var(--lumo-primary-color);
       }
 

@@ -40,7 +40,7 @@ export class Application extends LitElement {
       }
 
       header img {
-        height: 86px;
+        height: 5.375rem;
         width: auto;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
       }

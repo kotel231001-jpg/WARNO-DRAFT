@@ -3,15 +3,17 @@
  *
  * What the server knows: who is in a lobby, the teams, whose turn it is and
  * which card position (left / middle / right = 0 / 1 / 2) was chosen. It never
- * sees units, divisions or decks: every player's draft runs in his own
- * browser, so every choice stays private to that player.
+ * sees units or divisions while the draft runs: every player's draft runs in
+ * his own browser, so every choice stays private to that player. Only when a
+ * player's deck is full does his browser send the finished deck code; it is
+ * shown to his teammates (never the other team) once everybody is done.
  *
  * API (all POST bodies are JSON and carry the player's secret `cid`):
  *   POST /api/lobby/create {cid, nick, dataset}
  *   POST /api/lobby/join   {cid, nick, code}
  *   POST /api/lobby/leave  {cid}
  *   POST /api/lobby/<action> {cid, ...}
- *        dataset teams back start kick takehost ready pick ack skip
+ *        dataset teams back start kick takehost ready pick ack skip share
  *   GET  /api/lobby/events?cid=...   live stream (Server-Sent Events)
  *   GET  /api/log                    last 300 events
  *
@@ -41,7 +43,7 @@ const DATASETS = new Set(['wif', 'vanilla']);
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_PLAYERS = 10;
 const MAX_PER_TEAM = 5;
-const MAX_BODY = 4096;
+const MAX_BODY = 8192;
 const MAX_LOG = 300;
 const LOBBY_TTL_MS = 6 * 60 * 60 * 1000;
 
@@ -99,9 +101,19 @@ function makeCode() {
 /* Snapshot: everything every player of a lobby may see (no secrets)   */
 /* ------------------------------------------------------------------ */
 
-function snapshot(lobby) {
+function snapshot(lobby, viewerCid) {
   const d = lobby.draft;
+  // Deck codes are shared only after the whole draft is over, and only with
+  // the owner's team (a player's deck never goes to the other side).
+  const viewer = lobby.members.get(viewerCid);
+  const decks = {};
+  if (lobby.phase === 'finished' && viewer && viewer.team) {
+    for (const m of lobby.members.values()) {
+      if (m.team === viewer.team && m.deckCode) decks[m.pid] = m.deckCode;
+    }
+  }
   return {
+    decks,
     code: lobby.code,
     phase: lobby.phase,
     dataset: lobby.dataset,
@@ -133,9 +145,11 @@ function snapshot(lobby) {
 }
 
 function broadcast(lobby) {
-  const data = `data: ${JSON.stringify(snapshot(lobby))}\n\n`;
   for (const cid of lobby.members.keys()) {
-    for (const res of streams.get(cid) ?? []) res.write(data);
+    const set = streams.get(cid);
+    if (!set || set.size === 0) continue;
+    const data = `data: ${JSON.stringify(snapshot(lobby, cid))}\n\n`;
+    for (const res of set) res.write(data);
   }
 }
 
@@ -488,6 +502,20 @@ const actions = {
     // Only the position is ever recorded: not what was behind the card
     appendLog({type: 'pick', lobby: lobby.code, nick: lobby.members.get(cid).nick, round: d.round, slot});
     advance(lobby);
+    return {lobby, reply: {ok: true}};
+  },
+
+  /**
+   * A player's finished deck code. Stored, but handed out only when the whole
+   * draft is finished, and only to the same team (see snapshot).
+   */
+  share(body) {
+    const cid = checkCid(body.cid);
+    const lobby = lobbyFor(cid);
+    if (!lobby.draft) throw new Fail('Draft jeszcze się nie zaczął.');
+    const code = clip(body.code, 2000);
+    if (!/^[A-Za-z0-9+/=]{8,2000}$/.test(code)) throw new Fail('Błędny kod decku.');
+    lobby.members.get(cid).deckCode = code;
     return {lobby, reply: {ok: true}};
   },
 

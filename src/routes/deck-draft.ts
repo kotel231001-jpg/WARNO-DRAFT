@@ -132,7 +132,7 @@ export class DeckDraftRoute extends LitElement implements BeforeEnterObserver {
       .deck-code-box textarea {
         box-sizing: border-box;
         width: 100%;
-        min-height: 90px;
+        min-height: 5.625rem;
         padding: var(--lumo-space-s);
         font-family: monospace;
         font-size: var(--lumo-font-size-s);
@@ -175,7 +175,7 @@ export class DeckDraftRoute extends LitElement implements BeforeEnterObserver {
       .button-drawer {
         position: fixed;
         bottom: 0;
-        height: 60px;
+        height: 3.75rem;
         width: 100%;
         background-color: var(--lumo-base-color);
         z-index: 1;

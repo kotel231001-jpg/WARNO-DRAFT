@@ -42,6 +42,17 @@ w lobby, drużyny, czyja tura, jaka pozycja karty została wybrana i kto ma peł
 deck. Dziennik `logs/draft-log.ndjson` zawiera tylko nick, rundę i pozycję.
 Ostatnie wpisy: `http://localhost:8080/api/log`.
 
+**Decki drużyny na końcu.** Gdy gracz skompletuje deck, jego przeglądarka
+wysyła na serwer sam kod decku. Serwer trzyma go w ukryciu, a dopiero gdy
+wszyscy skończą draft, pokazuje go **tylko graczom z tej samej drużyny**
+(zakładki z nickami pod własnym deckiem, każdy deck z przyciskiem „Kopiuj kod").
+Drużyna przeciwna nigdy go nie dostaje. Podczas draftu nic się nie zmienia.
+
+**Skalowanie.** Cały układ jest w jednostkach `rem`, a rozmiar bazowy liczy się
+z okna przeglądarki (`styles/app.css`): 16 px przy 1920x1080, proporcjonalnie
+mniej na laptopach i więcej na 1440p, 4K i ultrawide. Na telefonach i tabletach
+(poniżej 1001 px) zostaje stałe 16 px.
+
 **Rozłączenia.** Odświeżenie strony nic nie psuje: gracz wraca do tego samego
 lobby i swojego drafta, a brakujące rundy nadrabia sam. Rozłączony gracz nie
 blokuje reszty. Host może pominąć turę albo usunąć gracza. Gdy host zniknie,

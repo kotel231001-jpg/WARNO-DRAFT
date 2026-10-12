@@ -22,7 +22,7 @@ export class HomeRoute extends LitElement {
         flex-direction: column;
         gap: var(--lumo-space-m);
         width: 100%;
-        max-width: 360px;
+        max-width: 22.5rem;
       }
 
       a {
@@ -63,8 +63,8 @@ export class HomeRoute extends LitElement {
       }
 
       .sound vaadin-icon {
-        width: 18px;
-        height: 18px;
+        width: 1.125rem;
+        height: 1.125rem;
       }
     `;
   }

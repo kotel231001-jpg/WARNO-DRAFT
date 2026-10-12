@@ -12,7 +12,7 @@ export class UnitImage extends LitElement {
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        width: 150px;
+        width: 9.375rem;
       }
 
       img {
@@ -23,11 +23,11 @@ export class UnitImage extends LitElement {
       }
 
       vaadin-icon {
-        font-size: 24px;
+        font-size: 1.5rem;
       }
 
       .unit-sub-icon.smaller {
-        font-size: 20px;
+        font-size: 1.25rem;
       }
 
       .unit-sub-icon.transport {
@@ -86,7 +86,7 @@ export class UnitImage extends LitElement {
       </div> `;
     } else {
       iconHtml = html`<vaadin-icon
-        style="font-size: 48px;"
+        style="font-size: 3rem;"
         icon="vaadin:question"
       ></vaadin-icon>`;
     }

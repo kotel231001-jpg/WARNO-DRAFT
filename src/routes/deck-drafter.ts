@@ -128,8 +128,8 @@ export class DeckDrafterRoute
         overflow-y: auto;
         max-height: 100%;
         background-color: var(--lumo-base-color);
-        margin-top: 56px;
-        max-height: calc(100% - 56px - var(--lumo-space-m));
+        margin-top: 3.5rem;
+        max-height: calc(100% - 3.5rem - var(--lumo-space-m));
         box-sizing: border-box;
       }
 
@@ -156,11 +156,11 @@ export class DeckDrafterRoute
       .center {
         position: absolute;
         z-index: 1;
-        max-width: 600px;
+        max-width: 37.5rem;
       }
 
       .card img {
-        max-width: 320px;
+        max-width: 20rem;
       }
 
       .header {
@@ -192,7 +192,7 @@ export class DeckDrafterRoute
       }
 
       .button-container vaadin-button {
-        min-width: 140px;
+        min-width: 8.75rem;
       }
 
       vaadin-button.nato {
@@ -212,7 +212,7 @@ export class DeckDrafterRoute
       }
 
       .label > simple-chip {
-        height: 16px;
+        height: 1rem;
         font-size: var(--lumo-font-size-xs);
       }
 
@@ -237,8 +237,8 @@ export class DeckDrafterRoute
       }
 
       .dlc-list input {
-        width: 18px;
-        height: 18px;
+        width: 1.125rem;
+        height: 1.125rem;
         accent-color: var(--lumo-primary-color);
       }
 

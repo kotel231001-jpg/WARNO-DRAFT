@@ -62,8 +62,8 @@ export class DeckDraftDivisionPicker extends LitElement {
       /* Equal cards: the emblem area grows, the button sits at the bottom */
       .division {
         animation-fill-mode: forwards;
-        flex: 1 1 280px;
-        max-width: 400px;
+        flex: 1 1 17.5rem;
+        max-width: 25rem;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;

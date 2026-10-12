@@ -53,12 +53,12 @@ export class DeckDraftUnitPicker extends LitElement {
       }
 
       img {
-        width: 300px;
+        width: 18.75rem;
         overflow: hidden;
       }
 
       vaadin-icon {
-        font-size: 32px;
+        font-size: 2rem;
       }
 
       .deck-draft-card {
@@ -66,7 +66,7 @@ export class DeckDraftUnitPicker extends LitElement {
         flex-direction: column;
         flex: 0 0 auto;
         box-sizing: border-box;
-        width: min(380px, 88vw);
+        width: min(23.75rem, 88vw);
         padding: var(--lumo-space-s);
         background-color: hsla(0, 0%, 11%, 0.92);
         border: 1px solid var(--lumo-contrast-20pct);
@@ -91,7 +91,7 @@ export class DeckDraftUnitPicker extends LitElement {
 
 
       deck-draft-button {
-        max-width: 400px;
+        max-width: 25rem;
       }
 
       vaadin-button {

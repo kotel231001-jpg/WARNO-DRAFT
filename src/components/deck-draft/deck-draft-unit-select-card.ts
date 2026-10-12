@@ -75,10 +75,10 @@ export class DeckDraftUnitSelectCard extends ArmouryWithTransportCard {
         display: flex;
         justify-content: space-evenly;
         align-items: center;
-        height: 48px;
+        height: 3rem;
         padding: 0 var(--lumo-space-s);
         border-bottom: 1px solid var(--lumo-contrast-10pct);
-        --weapon-icon-height: 34px;
+        --weapon-icon-height: 2.125rem;
       }
 
       .weapons weapon-image {
